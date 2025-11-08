@@ -20,15 +20,15 @@ let data: DataSourceOptions = {
 
 // Ativar na Produção ( Criptografia )
 if (process.env.DB_SSL === 'true') {
-    data = {
-        ...data,
-        ssl: true,
-        extra: {
-          ssl: {
-            rejectUnauthorized: false,
-          },
-        },
-    };
+  data = {
+    ...data,
+    extra: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    },
+    ssl: true,
+  };
 }
 
 export const dataSource = new DataSource(data)

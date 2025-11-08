@@ -5,7 +5,7 @@ import { User } from "../entities/User";
 import AppError from "../../../shared/utils/AppError";
 import { hash } from "bcryptjs"
 
-export default class UsersControllers {
+export default class UsersController {
     public async list(request: Request, response: Response): Promise<Response> {
         const usersRepository = dataSource.getRepository(User);
         const users = await usersRepository.find();
@@ -23,7 +23,7 @@ export default class UsersControllers {
             where: { email }
         });
 
-        if (checkUserExists) throw new AppError('Email adress already used.');
+        if (checkUserExists) throw new AppError('Email já está sendo usado.');
 
         const hashedPassword = await hash(password, 10);
 
