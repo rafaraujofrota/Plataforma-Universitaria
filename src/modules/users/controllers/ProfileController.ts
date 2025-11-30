@@ -10,7 +10,8 @@ export default class ProfileController {
         const usersRepository = dataSource.getRepository(User);
 
         const user = await usersRepository.findOne({
-            where: { id: response.locals.userId }
+            where: { id: response.locals.userId },
+            relations: { profile: true }
         });
 
         if(!user) throw new AppError("Usuário não encontrado!", 404) 
@@ -27,19 +28,24 @@ export default class ProfileController {
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
         const user = await usersRepository.findOne({
-            where: { id: response.locals.userId }
+            where: { id: response.locals.userId },
+            relations: { profile: true }
         });
 
         if(!user) throw new AppError("Usuário não encontrado!", 404) 
 
-        const { name } = request.body;
+        const { name, bio, course, type, registration } = request.body;
         const avatar = request.file?.filename;
 
-        
         if (name) user.name = name;
+        if (bio) user.profile.bio = bio;
+        if (course) user.profile.course = course;
+        if (registration) user.profile.registration = registration
+        if (type) user.profile.type = type
+
         if (avatar) {
-            if(user.avatar) await deleteFile(user.avatar)
-            user.avatar = avatar;
+            if(user.profile.avatar) await deleteFile(user.profile.avatar)
+            user.profile.avatar = avatar;
         }
 
         await usersRepository.save(user);

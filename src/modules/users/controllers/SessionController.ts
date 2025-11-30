@@ -19,6 +19,8 @@ export default class SessionController {
 
         if (!foundUser) throw new AppError("Email ou senha incorretos.", 401);
 
+        if (!foundUser.verified) throw new AppError("Usuário não verificado", 403)
+
         const dataMatch = await compare(password, foundUser.password)
 
         if (!dataMatch) throw new AppError("Email ou senha incorretos.", 401)

@@ -10,7 +10,7 @@ interface AuthConfig {
 const authConfig: AuthConfig = {
     jwt: {
         secret: process.env.APP_SECRET || "default",
-        expiresIn: "1d"
+        expiresIn: "60d"
     }
 }
 

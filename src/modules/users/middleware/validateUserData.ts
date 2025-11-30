@@ -19,6 +19,18 @@ export function validateUserData(req: Request, res: Response, next: NextFunction
     next();
 }
 
+export function validateEmail(req: Request, res: Response, next: NextFunction) {
+    if (!req.body) throw new AppError("Body Inválido")
+        
+    const { email } = req.body;
+
+    const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+    if (typeof email !== "string" || !emailRegex.test(email)) 
+        throw new AppError("Email Inválido")
+
+    next()
+}
+
 export function validateSession(req: Request, res: Response, next: NextFunction) {
     if (!req.body) throw new AppError("Body Inválido") 
 
@@ -29,17 +41,6 @@ export function validateSession(req: Request, res: Response, next: NextFunction)
 
     if (!password || typeof password !== "string") 
         throw new AppError("Senha Inválida")
-
-    next();
-}
-
-export function validateProfile(req: Request, res: Response, next: NextFunction) {
-    if (!req.body) throw new AppError("Body Inválido") 
-
-    const { name } = req.body;
-
-    if (typeof name !== "string" || name.trim().length < 3) 
-        throw new AppError("Nome Inválido ou Curto")
 
     next();
 }

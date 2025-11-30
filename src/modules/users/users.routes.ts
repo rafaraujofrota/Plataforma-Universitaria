@@ -1,6 +1,7 @@
 import { Router } from "express";
 
-import { validateSession, validateUserData, validateProfile} from "./middleware/validateUserData";
+import { validateEmail, validateSession, validateUserData } from "./middleware/validateUserData";
+import { validateProfile } from "./middleware/validateProfile";
 import checkAuthentication from "../../shared/middlewares/checkAuthentication";
 import { upload } from "../../config/upload";
 
@@ -13,23 +14,16 @@ const usersController = new UsersController();
 const sessionController = new SessionController()
 const profileController = new ProfileController()
 
-// Rota para testes
+// Gets 
 usersRouter.get(
   "/",
 	checkAuthentication,
   usersController.list,
 );
 
-usersRouter.post(
-  "/",
-  validateUserData,
-  usersController.create,
-)
-
-usersRouter.post(
-	"/session",
-  validateSession,
-	sessionController.create
+usersRouter.get(
+  "/verify/:id",
+  usersController.verify,
 )
 
 usersRouter.get(
@@ -38,6 +32,32 @@ usersRouter.get(
   profileController.show
 )
 
+usersRouter.get(
+  "/:id",
+	checkAuthentication,
+  usersController.show,
+);
+
+// Post 
+usersRouter.post(
+  "/",
+  validateUserData,
+  usersController.create,
+)
+
+usersRouter.post(
+  "/sendEmail",
+  validateEmail,
+  usersController.sendEmail,
+)
+
+usersRouter.post(
+	"/session",
+  validateSession,
+	sessionController.create
+)
+
+// Put
 usersRouter.put(
   "/profile",
   checkAuthentication,

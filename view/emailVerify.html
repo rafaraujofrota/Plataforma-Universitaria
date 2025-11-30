@@ -1,0 +1,126 @@
+<!doctype html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verifique sua conta</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background-color: #f4f6f8;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 24px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+        }
+
+        p {
+            margin: 0 0 16px 0;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: #4f46e5;
+            color: #fff !important;
+        }
+
+        .code {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 8px 0;
+        }
+
+        .small {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .footer {
+            padding: 16px 24px;
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        @media (max-width:420px) {
+            .content {
+                padding: 18px;
+            }
+
+            .header {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" role="article" aria-label="Verificação de conta">
+        <div class="header">
+            <strong>Chama!</strong>
+            <div style="font-size:12px; margin-top:6px; opacity:0.95;">Verifique sua conta</div>
+        </div>
+
+        <div class="content">
+            <h1>Quase lá — verifique seu e-mail</h1>
+            <p>Olá,</p>
+            <p>Recebemos um pedido para verificar seu e-mail. Clique no botão abaixo para ativar sua conta.</p>
+
+            <p style="text-align:center; margin:20px 0;">
+                <a href="{{code}}" class="btn btn-primary" target="_blank" rel="noopener">Verificar Conta</a>
+            </p>
+
+            <hr style="border:none; border-top:1px solid #eef2f7; margin:18px 0;" />
+
+            <p class="small">Se você não criou essa conta, ignore este e-mail. Este link expira em 30 minutos.</p>
+        </div>
+
+        <div class="footer">
+            © <span id="year">2025</span> Chama! — Direitos reservados
+        </div>
+    </div>
+</body>
+</html>
