@@ -5,7 +5,7 @@ import { User } from "./User";
 
 @Entity("verification_tokens")
 export class VerificationToken {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn("uuid")
     id!: number;
     
     @Column()
