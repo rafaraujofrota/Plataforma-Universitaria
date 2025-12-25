@@ -18,43 +18,43 @@ const profileController = new ProfileController()
 usersRouter.get(
   "/",
 	checkAuthentication,
-  usersController.list,
+  (req, res) => usersController.list(req, res),
 );
 
 usersRouter.get(
   "/verify/:id",
-  usersController.verify,
+  (req, res) => usersController.verify(req, res),
 )
 
 usersRouter.get(
   "/profile",
   checkAuthentication,
-  profileController.show
+  (req, res) => profileController.show(req, res)
 )
 
 usersRouter.get(
   "/:id",
 	checkAuthentication,
-  usersController.show,
+  (req, res) => usersController.show(req, res),
 );
 
 // Post 
 usersRouter.post(
   "/",
   validateUserData,
-  usersController.create,
+  (req, res) => usersController.create(req, res),
 )
 
 usersRouter.post(
   "/sendEmail",
   validateEmail,
-  usersController.sendEmail,
+  (req, res) => usersController.sendEmail(req, res),
 )
 
 usersRouter.post(
 	"/session",
   validateSession,
-	sessionController.create
+	(req, res) => sessionController.create(req, res)
 )
 
 // Put
@@ -63,7 +63,7 @@ usersRouter.put(
   checkAuthentication,
   upload.single("avatar"),
   validateProfile,
-  profileController.update
+  (req, res) => profileController.update(req, res)
 )
 
 

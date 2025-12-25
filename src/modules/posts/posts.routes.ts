@@ -19,25 +19,25 @@ postsRouter.post(
     checkAuthentication,
     upload.single("media"),
     validatePost,
-    postsController.create
+    (req, res) => postsController.create(req, res)
 )
 
 postsRouter.get(
     "/show",
     checkAuthentication,
-    postsController.list
+    (req, res) => postsController.list(req, res)
 )
 
 postsRouter.get(
     "/",
     checkAuthentication,
-    postsController.listAll
+    (req, res) => postsController.listAll(req, res)
 )
 
 postsRouter.delete(
     "/:id",
     checkAuthentication, 
-    postsController.remove
+    (req, res) => postsController.remove(req, res)
 )
 
 // Comentários
@@ -45,7 +45,7 @@ postsRouter.delete(
 postsRouter.get(
     "/comments/:postId",
     checkAuthentication,
-    commentsController.show
+    (req, res) => commentsController.show(req, res)
 )
 
 postsRouter.post(
@@ -53,7 +53,7 @@ postsRouter.post(
     checkAuthentication,
     upload.single("media"),
     validateComment,
-    commentsController.createForPost
+    (req, res) => commentsController.createForPost(req, res)
 )
 
 export default postsRouter

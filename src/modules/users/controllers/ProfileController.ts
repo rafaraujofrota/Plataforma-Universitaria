@@ -1,15 +1,21 @@
 import { Request, Response } from "express";
-import { dataSource } from "../../../shared/infra/dataSource";
 import { User } from "../entities/User";
 
 import AppError from "../../../shared/utils/AppError";
 import deleteFile from "../../../shared/utils/deleteFile";
 
-export default class ProfileController {
-    public async show(request: Request, response: Response): Promise<Response> {
-        const usersRepository = dataSource.getRepository(User);
+import { dataSource } from "../../../shared/infra/dataSource";
+import { Repository } from "typeorm";
 
-        const user = await usersRepository.findOne({
+export default class ProfileController {
+    protected usersRepository: Repository<User>
+
+    constructor() {
+        this.usersRepository = dataSource.getRepository(User)
+    }
+
+    public async show(request: Request, response: Response): Promise<Response> {
+        const user = await this.usersRepository.findOne({
             where: { id: response.locals.userId },
             relations: { profile: true }
         });
@@ -22,12 +28,10 @@ export default class ProfileController {
     }
 
     public async update(request: Request, response: Response): Promise<Response> {
-        const usersRepository = dataSource.getRepository(User);
-
         // Só cai aqui se alguém modificar o UserRoutes e mover o CheckAuthentication
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        const user = await usersRepository.findOne({
+        const user = await this.usersRepository.findOne({
             where: { id: response.locals.userId },
             relations: { profile: true }
         });
@@ -48,7 +52,7 @@ export default class ProfileController {
             user.profile.avatar = avatar;
         }
 
-        await usersRepository.save(user);
+        await this.usersRepository.save(user);
 
         const { password:_ , id:__ , ...userSafeData } = user
 

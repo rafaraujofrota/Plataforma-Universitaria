@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { dataSource } from "../../../shared/infra/dataSource";
 import { User } from "../entities/User";
 import { VerificationToken } from "../entities/VerificationToken";
 
@@ -9,10 +8,20 @@ import { randomUUID } from "crypto";
 
 import { sendVerificationEmail } from "../../../shared/utils/sendEmail";
 
+import { dataSource } from "../../../shared/infra/dataSource";
+import { Repository } from "typeorm";
+
 export default class UsersController {
+    protected usersRepository: Repository<User>
+    protected tokenRepository: Repository<VerificationToken>
+
+    constructor() {
+        this.tokenRepository = dataSource.getRepository(VerificationToken);
+        this.usersRepository = dataSource.getRepository(User)
+    }
+
     public async list(request: Request, response: Response): Promise<Response> {
-        const usersRepository = dataSource.getRepository(User);
-        const users = await usersRepository.find();
+        const users = await this.usersRepository.find();
 
         return response.json(users.map(
             ({ password, id, ...others }) => others)
@@ -20,11 +29,9 @@ export default class UsersController {
     }
 
     public async show(request: Request, response: Response): Promise<Response> {
-        const usersRepository = dataSource.getRepository(User);
-
         const { id } = request.params
 
-        const user = await usersRepository.findOne({ 
+        const user = await this.usersRepository.findOne({ 
             where: { id },
             relations: { profile: true }
         });
@@ -37,12 +44,9 @@ export default class UsersController {
     }
 
     public async sendEmail(request: Request, response: Response): Promise<Response> {
-        const usersRepository = dataSource.getRepository(User);
-        const tokenRepository = dataSource.getRepository(VerificationToken);
-
         const { email } = request.body
 
-        const user = await usersRepository.findOne({ 
+        const user = await this.usersRepository.findOne({ 
             where: { email }
         });
 
@@ -50,23 +54,23 @@ export default class UsersController {
 
         if(user.verified) throw new AppError("Usuário já verificado")
 
-        let token = await tokenRepository.findOne({
+        let token = await this.tokenRepository.findOne({
             where: { user: { id: user.id } }
         })
 
         if(!token) {
-            token = tokenRepository.create({
+            token = this.tokenRepository.create({
                 user,
                 token: randomUUID(),
                 expires_at: new Date(Date.now() + 30 * 60 * 1000), // 30 minutos
             });
 
-            await tokenRepository.save(token)
+            await this.tokenRepository.save(token)
         } else {
             token.token = randomUUID()
             token.expires_at = new Date(Date.now() + 30 * 60 * 1000)
 
-            await tokenRepository.save(token)
+            await this.tokenRepository.save(token)
         }
 
         try {
@@ -79,12 +83,9 @@ export default class UsersController {
     }
 
     public async verify(request: Request, response: Response): Promise<Response> {
-        const usersRepository = dataSource.getRepository(User);
-        const tokenRepository = dataSource.getRepository(VerificationToken);
-
         const { token } = request.params
 
-        const foundToken = await tokenRepository.findOne({ 
+        const foundToken = await this.tokenRepository.findOne({ 
             where: { token },
             relations: { user: true }
         });
@@ -92,25 +93,25 @@ export default class UsersController {
         if(!foundToken) throw new AppError("Token não encontrado", 404)
 
         if(!foundToken.user) {
-            await tokenRepository.remove(foundToken)
+            await this.tokenRepository.remove(foundToken)
             throw new AppError("Token Inválido")
         }
 
         if(foundToken.expires_at.getTime() < Date.now()) {
-            await tokenRepository.remove(foundToken)
+            await this.tokenRepository.remove(foundToken)
             throw new AppError("Token Expirado", 410)
         }
 
         if(foundToken.user.verified) {
-            await tokenRepository.remove(foundToken)
+            await this.tokenRepository.remove(foundToken)
             throw new AppError("Usuário já verificado")
         }
 
         foundToken.user.verified = true
 
-        await usersRepository.save(foundToken.user)
+        await this.usersRepository.save(foundToken.user)
 
-        await tokenRepository.remove(foundToken)
+        await this.tokenRepository.remove(foundToken)
 
         return response.json({ message: "Usuário Verificado"});
     }
@@ -118,10 +119,7 @@ export default class UsersController {
     public async create(request: Request, response: Response): Promise<Response> {
         const { name, email, password } = request.body;
 
-        const usersRepository = dataSource.getRepository(User);
-        const tokenRepository = dataSource.getRepository(VerificationToken);
-
-        const checkUserExists = await usersRepository.findOne({
+        const checkUserExists = await this.usersRepository.findOne({
             where: { email }
         });
 
@@ -129,22 +127,22 @@ export default class UsersController {
 
         const hashedPassword = await hash(password, 10);
 
-        const user = usersRepository.create({
+        const user = this.usersRepository.create({
             name,
             email,
             password: hashedPassword,
             profile: {}
         });
 
-        await usersRepository.save(user)
+        await this.usersRepository.save(user)
 
-        const token = tokenRepository.create({
+        const token = this.tokenRepository.create({
             user,
             token: randomUUID(),
             expires_at: new Date(Date.now() + 30 * 60 * 1000), // 30 minutos
         });
 
-        await tokenRepository.save(token)
+        await this.tokenRepository.save(token)
 
         const { password:_ , id:__ , ...userSafeData } = user
 

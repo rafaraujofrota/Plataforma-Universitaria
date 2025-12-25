@@ -16,13 +16,13 @@ commentsRouter.post(
     checkAuthentication,
     upload.single("media"),
     validateComment,
-    commentsController.createReply
+    (req, res) => commentsController.createReply(req, res)
 )
 
 commentsRouter.delete(
     "/:commentId",
     checkAuthentication,
-    commentsController.remove
+    (req, res) => commentsController.remove(req, res)
 )
 
 export default commentsRouter

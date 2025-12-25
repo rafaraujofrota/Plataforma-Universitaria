@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { dataSource } from "../../../shared/infra/dataSource";
 
 import { Post } from "../entities/Post";
 import { User } from "../../users/entities/User";
@@ -8,48 +7,54 @@ import { Comment } from "../entities/Comment";
 import AppError from "../../../shared/utils/AppError";
 import buildTree from "../../../shared/utils/buildTree";
 
-export default class CommentsController {
-    public async createForPost(request: Request, response: Response): Promise<Response> {
-        const postsRepository = dataSource.getRepository(Post);
-        const usersRepository = dataSource.getRepository(User)
-        const commentsRepository = dataSource.getRepository(Comment);
+import { Repository } from "typeorm";
+import { dataSource } from "../../../shared/infra/dataSource";
 
+export default class CommentsController {
+    protected postsRepository: Repository<Post>
+    protected usersRepository: Repository<User>
+    protected commentsRepository: Repository<Comment>
+
+    constructor() {
+        this.postsRepository = dataSource.getRepository(Post)
+        this.usersRepository = dataSource.getRepository(User)
+        this.commentsRepository = dataSource.getRepository(Comment);
+    }
+
+    public async createForPost(request: Request, response: Response): Promise<Response> {
         const { postId } = request.params
         const { content } = request.body
         const media = request.file?.filename;
 
-        const post = await postsRepository.findOne({ where: { id: postId } })
+        const post = await this.postsRepository.findOne({ where: { id: postId } })
         if(!post) throw new AppError("Post não encontrado")
 
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        const user = await usersRepository.findOne({
+        const user = await this.usersRepository.findOne({
             where: { id: response.locals.userId },
         });
 
         if(!user) throw new AppError("Usuário não encontrado")
 
-        const comment = commentsRepository.create({
+        const comment = this.commentsRepository.create({
             content,
             media,
             author: user,
             post
         })
 
-        await commentsRepository.save(comment)
+        await this.commentsRepository.save(comment)
 
         return response.json({ content, media, id: comment.id })
     }
 
     public async createReply(request: Request, response: Response): Promise<Response> {
-        const usersRepository = dataSource.getRepository(User)
-        const commentsRepository = dataSource.getRepository(Comment);
-
         const { commentId } = request.params
         const { content } = request.body
         const media = request.file?.filename;
 
-        const comment = await commentsRepository.findOne({ 
+        const comment = await this.commentsRepository.findOne({ 
             where: { id: commentId },
             relations: { post: true }
         })
@@ -57,13 +62,13 @@ export default class CommentsController {
 
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        const user = await usersRepository.findOne({
+        const user = await this.usersRepository.findOne({
             where: { id: response.locals.userId },
         });
 
         if(!user) throw new AppError("Usuário não encontrado")
 
-        const reply = commentsRepository.create({
+        const reply = this.commentsRepository.create({
             content,
             media,
             author: user,
@@ -71,17 +76,15 @@ export default class CommentsController {
             parent: comment
         })
 
-        await commentsRepository.save(reply)
+        await this.commentsRepository.save(reply)
 
         return response.json({ content, media, id: reply.id })
     }
 
     public async show(request: Request, response: Response): Promise<Response> {
-        const commentsRepository = dataSource.getRepository(Comment);
-
         const { postId } = request.params
 
-        const comments = await commentsRepository
+        const comments = await this.commentsRepository
         .createQueryBuilder("comment")
         .where("comment.postId = :postId", { postId })
         .loadRelationCountAndMap("comment.likeCount", "comment.likes")
@@ -91,11 +94,9 @@ export default class CommentsController {
     }
     
     public async remove(request: Request, response: Response): Promise<Response> {
-        const commentsRepository = dataSource.getRepository(Comment)
-
         const { commentId } = request.params
 
-        const comment = await commentsRepository.findOne({ 
+        const comment = await this.commentsRepository.findOne({ 
             where: { id: commentId },
             relations: { author: true }
         });
@@ -106,7 +107,7 @@ export default class CommentsController {
 
         if(response.locals.userId !== comment.author.id) throw new AppError("Sem Permissão", 401)
 
-        await commentsRepository.remove(comment)
+        await this.commentsRepository.remove(comment)
 
         return response.json({ message: "Comentário Removido" })
     }
