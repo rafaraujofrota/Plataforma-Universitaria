@@ -32,7 +32,7 @@ export default class PostsController {
             content,
             media,
             tags: JSON.parse(tags),
-            user
+            author: user
         })
 
         await this.postsRepository.save(post)
@@ -45,14 +45,14 @@ export default class PostsController {
 
         const post = await this.postsRepository.findOne({ 
             where: { id },
-            relations: { user: true }
+            relations: { author: true }
         });
 
         if(!post) throw new AppError("Post não encontrado")
 
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        if(response.locals.userId !== post.user.id) throw new AppError("Sem Permissão", 401)
+        if(response.locals.userId !== post.author.id) throw new AppError("Sem Permissão", 401)
 
         await this.postsRepository.remove(post)
 
@@ -64,8 +64,8 @@ export default class PostsController {
 
         const posts = await this.postsRepository
         .createQueryBuilder("posts")
-        .leftJoin("posts.user", "user")
-        .where("user.id = :userId", { userId: response.locals.userId })
+        .leftJoin("posts.author", "author")
+        .where("author.id = :userId", { userId: response.locals.userId })
         .loadRelationCountAndMap("posts.likesCount", "posts.likes")
         .getMany();
 
@@ -75,6 +75,15 @@ export default class PostsController {
     public async listAll(request: Request, response: Response): Promise<Response> {
         const posts = await this.postsRepository
         .createQueryBuilder("posts")
+        /// Pegar dados do usuário
+        .leftJoin("posts.author", "author")
+        .leftJoin("author.profile", "profile")
+        .addSelect([
+            "author.id",
+            "author.name",
+            "profile.avatar",
+        ])
+        /// Pegar quantidade de Likes
         .loadRelationCountAndMap("posts.likesCount", "posts.likes")
         .getMany();
 

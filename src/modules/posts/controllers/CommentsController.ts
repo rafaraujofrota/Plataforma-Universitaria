@@ -85,9 +85,18 @@ export default class CommentsController {
         const { postId } = request.params
 
         const comments = await this.commentsRepository
-        .createQueryBuilder("comment")
-        .where("comment.postId = :postId", { postId })
-        .loadRelationCountAndMap("comment.likeCount", "comment.likes")
+        .createQueryBuilder("comments")
+        .where("comments.postId = :postId", { postId })
+        /// Pegar dados do Usuário
+        .leftJoin("comments.author", "author")
+        .leftJoin("author.profile", "profile")
+        .addSelect([
+            "author.id",
+            "author.name",
+            "profile.avatar",
+        ])
+        /// Pegar quantidades de Likes
+        .loadRelationCountAndMap("comments.likeCount", "comments.likes")
         .getMany()
 
         return response.json(buildTree(comments))

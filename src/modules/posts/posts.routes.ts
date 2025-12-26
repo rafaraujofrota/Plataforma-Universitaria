@@ -5,6 +5,7 @@ import { upload } from "../../config/upload";
 
 import PostsController from "./controllers/PostsController";
 import CommentsController from "./controllers/CommentsController";
+import LikesController from "./controllers/LikesController";
 
 import { validatePost } from "./middlewares/validatePosts";
 import { validateComment } from "./middlewares/validateComments";
@@ -13,6 +14,7 @@ const postsRouter = Router();
 
 const postsController = new PostsController()
 const commentsController = new CommentsController()
+const likesController = new LikesController()
 
 postsRouter.post(
     "/",
@@ -38,6 +40,12 @@ postsRouter.delete(
     "/:id",
     checkAuthentication, 
     (req, res) => postsController.remove(req, res)
+)
+
+postsRouter.post(
+    "/like/:postId",
+    checkAuthentication,
+    (req, res) => likesController.toggleLikePost(req, res)
 )
 
 // Comentários

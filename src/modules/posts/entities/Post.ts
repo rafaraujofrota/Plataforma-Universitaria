@@ -21,8 +21,8 @@ export class Post {
     @CreateDateColumn()
     created_at!: Date;
     
-    @ManyToOne(() => User, user => user.tokens, { onDelete: "CASCADE" })
-    user!: User;
+    @ManyToOne(() => User, user => user.posts, { onDelete: "CASCADE" })
+    author!: User;
     
     @OneToMany(() => Like, like => like.post)
     likes!: Like[];

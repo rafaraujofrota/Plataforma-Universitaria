@@ -24,7 +24,7 @@ export class Comment {
     @ManyToOne(() => User, user => user.comments, { onDelete: "CASCADE" })
     author!: User;
 
-    @OneToMany(() => Like, like => like.post)
+    @OneToMany(() => Like, like => like.comment)
     likes!: Like[];
 
     // Subcomentários
