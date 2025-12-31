@@ -7,6 +7,7 @@ import { Post } from "../../posts/entities/Post";
 import { Comment } from "../../posts/entities/Comment";
 import { Like } from "../../posts/entities/Likes";
 import { Event } from "../../events/entities/Event";
+import { Report } from "../../reports/entities/Report";
 
 @Entity('users') 
 export class User {
@@ -48,4 +49,7 @@ export class User {
 
     @OneToMany(() => Event, (event) => event.user)
     events!: Event[];
+
+    @OneToMany(() => Report, (report) => report.user)
+    reports!: Report[];
 }

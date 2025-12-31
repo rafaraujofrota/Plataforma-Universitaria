@@ -6,7 +6,7 @@ import { profileTypes } from "../entities/Profile";
 export function validateProfile(req: Request, res: Response, next: NextFunction) {
     if (!req.body) throw new AppError("Body Inválido") 
 
-    const { name, bio, course, registration, type  } = req.body;
+    const { name, bio, course, registration, type, organization  } = req.body;
 
     if(type) {
         if(type == "admin" || !profileTypes.includes(type)) throw new AppError("Tipo Inválido")
@@ -14,6 +14,9 @@ export function validateProfile(req: Request, res: Response, next: NextFunction)
 
     if (name && (typeof name !== "string" || name.trim().length < 3)) 
         throw new AppError("Nome Inválido ou Curto")
+
+    if (organization && (typeof organization !== "string" || organization.trim().length < 2)) 
+        throw new AppError("Organização Inválida")
 
     if (bio && typeof bio !== "string")
         throw new AppError("Bio Inválida")

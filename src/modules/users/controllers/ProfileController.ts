@@ -38,7 +38,7 @@ export default class ProfileController {
 
         if(!user) throw new AppError("Usuário não encontrado!", 404) 
 
-        const { name, bio, course, type, registration } = request.body;
+        const { name, bio, course, type, registration, organization } = request.body;
         const avatar = request.file?.filename;
 
         if (name) user.name = name;
@@ -46,6 +46,7 @@ export default class ProfileController {
         if (course) user.profile.course = course;
         if (registration) user.profile.registration = registration
         if (type) user.profile.type = type
+        if (organization) user.profile.organization = organization
 
         if (avatar) {
             if(user.profile.avatar) await deleteFile(user.profile.avatar)
