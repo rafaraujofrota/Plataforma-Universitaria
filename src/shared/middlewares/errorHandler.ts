@@ -11,6 +11,13 @@ function errorHandler(err: Error, request: Request, response: Response, _: NextF
     
     if (file) deleteFile(file)
 
+    if (err instanceof SyntaxError && 'body' in err) {
+        return response.status(400).json({
+            status: "error",
+            message: "JSON Inválido"
+        }); 
+    }
+
     if (err instanceof AppError) {
         return response.status(err.statusCode).json({
             status: 'error',

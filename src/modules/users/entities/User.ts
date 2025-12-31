@@ -6,6 +6,7 @@ import { Profile } from "./Profile";
 import { Post } from "../../posts/entities/Post";
 import { Comment } from "../../posts/entities/Comment";
 import { Like } from "../../posts/entities/Likes";
+import { Event } from "../../events/entities/Event";
 
 @Entity('users') 
 export class User {
@@ -44,4 +45,7 @@ export class User {
 
     @OneToMany(() => Like, (like) => like.user)
     likes!: Like[];
+
+    @OneToMany(() => Event, (event) => event.user)
+    events!: Event[];
 }
