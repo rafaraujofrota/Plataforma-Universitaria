@@ -17,7 +17,7 @@ export async function sendVerificationEmail({ to, code }: SendVerification) {
 
     // Aparentemente o Gmail remove links suspeitos, então localhost:3333 não funciona 
     // Não vai funcionar para testes locais, só vai quando colocarmos em um VPS
-    html = html.replace("{{code}}", `${process.env.API_URL}/verify/${code}`);
+    html = html.replace("{{code}}", `${process.env.API_URL}/users/verify/${code}`);
 
     const message = {
         from: `"Chama!" <${process.env.MAIL_ADRESS}>`,
