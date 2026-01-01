@@ -10,6 +10,10 @@ import buildTree from "../../../shared/utils/buildTree";
 import { Repository } from "typeorm";
 import { dataSource } from "../../../shared/infra/dataSource";
 
+interface CommentData extends Comment {
+    liked: true
+}
+
 export default class CommentsController {
     protected postsRepository: Repository<Post>
     protected usersRepository: Repository<User>
@@ -84,8 +88,7 @@ export default class CommentsController {
     public async show(request: Request, response: Response): Promise<Response> {
         const { postId } = request.params
 
-        const comments = await this.commentsRepository
-        .createQueryBuilder("comments")
+        const commentsQuery = this.commentsRepository.createQueryBuilder("comments")
         .where("comments.postId = :postId", { postId })
         /// Pegar dados do Usuário
         .leftJoin("comments.author", "author")
@@ -97,7 +100,17 @@ export default class CommentsController {
         ])
         /// Pegar quantidades de Likes
         .loadRelationCountAndMap("comments.likeCount", "comments.likes")
-        .getMany()
+        /// Ver se o usuário logado curtiu
+        .addSelect(subQuery => (
+            subQuery.select("COUNT(like.id) > 0")
+            .from("likes", "like")
+            .where("like.commentId = comments.id")
+            .andWhere("like.userId = :userId", { userId: response.locals.userId })
+        ), "liked")
+
+        const { raw, entities } = await commentsQuery.getRawAndEntities(); 
+
+        const comments = entities.map((c, i): CommentData => ({ liked: raw[i].liked, ...c }))
 
         return response.json(buildTree(comments))
     }

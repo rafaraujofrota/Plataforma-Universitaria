@@ -7,6 +7,10 @@ import AppError from "../../../shared/utils/AppError";
 import { Repository } from "typeorm";
 import { dataSource } from "../../../shared/infra/dataSource";
 
+interface PostData extends Post {
+    liked: boolean;
+}
+
 export default class PostsController {
     protected postsRepository: Repository<Post>
     protected usersRepository: Repository<User>
@@ -62,19 +66,28 @@ export default class PostsController {
     public async list(request: Request, response: Response): Promise<Response> {
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        const posts = await this.postsRepository
-        .createQueryBuilder("posts")
+        const postsQuery = this.postsRepository.createQueryBuilder("posts")
         .leftJoin("posts.author", "author")
         .where("author.id = :userId", { userId: response.locals.userId })
         .loadRelationCountAndMap("posts.likesCount", "posts.likes")
-        .getMany();
+        .addSelect(subQuery => (
+            subQuery.select("COUNT(like.id) > 0")
+            .from("likes", "like")
+            .where("like.postId = posts.id")
+            .andWhere("like.userId = :userId", { userId: response.locals.userId })
+        ), "liked")
+
+        const { raw, entities } = await postsQuery.getRawAndEntities(); 
+
+        const posts = entities.map((p, i): PostData => ({ liked: raw[i].liked, ...p }))
 
         return response.json(posts)
     }
 
     public async listAll(request: Request, response: Response): Promise<Response> {
-        const posts = await this.postsRepository
-        .createQueryBuilder("posts")
+        if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
+    
+        const postsQuery = this.postsRepository.createQueryBuilder("posts")
         /// Pegar dados do usuário
         .leftJoin("posts.author", "author")
         .leftJoin("author.profile", "profile")
@@ -85,7 +98,17 @@ export default class PostsController {
         ])
         /// Pegar quantidade de Likes
         .loadRelationCountAndMap("posts.likesCount", "posts.likes")
-        .getMany();
+        /// Ver se usuário logado curtiu
+        .addSelect(subQuery => (
+            subQuery.select("COUNT(like.id) > 0")
+            .from("likes", "like")
+            .where("like.postId = posts.id")
+            .andWhere("like.userId = :userId", { userId: response.locals.userId })
+        ), "liked")
+
+        const { raw, entities } = await postsQuery.getRawAndEntities(); 
+
+        const posts = entities.map((p, i): PostData => ({ liked: raw[i].liked, ...p }))
 
         return response.json(posts)   
     }
