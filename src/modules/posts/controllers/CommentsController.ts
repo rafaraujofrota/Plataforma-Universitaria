@@ -127,7 +127,7 @@ export default class CommentsController {
 
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        if(response.locals.userId !== comment.author.id) throw new AppError("Sem Permissão", 401)
+        if(response.locals.userId !== comment.author.id) throw new AppError("Sem Permissão", 403)
 
         await this.commentsRepository.remove(comment)
 

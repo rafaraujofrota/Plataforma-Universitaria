@@ -2,6 +2,8 @@ import { OneToMany, JoinColumn, OneToOne } from "typeorm"
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 import { VerificationToken } from './VerificationToken';
 
+import { PERMISSIONS } from "../../../shared/utils/Permissions";
+
 import { Profile } from "./Profile";
 import { Post } from "../../posts/entities/Post";
 import { Comment } from "../../posts/entities/Comment";
@@ -28,6 +30,9 @@ export class User {
 
     @Column()
     password!: string;
+
+    @Column("text", { array: true, default: [] })
+    permissions!: PERMISSIONS[];
 
     // Relações
 

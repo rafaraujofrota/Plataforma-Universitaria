@@ -55,7 +55,7 @@ export default class AnnouncementsController {
 
         if(!announcement) throw new AppError("Informe não encontrado!", 404) 
         if(announcement.user.id != response.locals.userId) {
-            throw new AppError("Sem permissão", 401)
+            throw new AppError("Sem permissão", 403)
         }
 
         const { description, link, start, end } = request.body;
@@ -85,7 +85,7 @@ export default class AnnouncementsController {
         if(!announcement) throw new AppError("Informe não encontrado")
 
         if(response.locals.userId !== announcement.user.id) {
-            throw new AppError("Sem Permissão", 401)
+            throw new AppError("Sem Permissão", 403)
         }
 
         await this.announcementsRepository.remove(announcement)

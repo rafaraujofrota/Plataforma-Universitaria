@@ -6,6 +6,9 @@ import {
 } from "./middlewares/validateAnnouncements";
 
 import checkAuthentication from "../../shared/middlewares/checkAuthentication";
+import checkPermission from "../../shared/middlewares/checkPermission";
+import { PERMISSIONS } from "../../shared/utils/Permissions";
+
 import AnnouncementsController from "./controllers/AnnouncementController";
 
 const announcementsRouter = Router();
@@ -27,6 +30,7 @@ announcementsRouter.get(
 announcementsRouter.post(
     "/",
     checkAuthentication,
+    checkPermission(PERMISSIONS.ANNOUNCEMENT_CREATE),
     validateAnnouncementsCreate,
     (req, res) => announcementsController.create(req, res)
 )
@@ -34,6 +38,7 @@ announcementsRouter.post(
 announcementsRouter.put(
     "/:id",
     checkAuthentication,
+    checkPermission(PERMISSIONS.ANNOUNCEMENT_UPDATE),
     validateAnnouncementsUpdate,
     (req, res) => announcementsController.update(req, res)
 )

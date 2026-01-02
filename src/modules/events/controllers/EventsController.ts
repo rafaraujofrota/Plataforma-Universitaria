@@ -55,7 +55,7 @@ export default class EventsController {
         });
 
         if(!event) throw new AppError("Evento não encontrado!", 404) 
-        if(event.user.id != response.locals.userId) throw new AppError("Sem permissão", 401)
+        if(event.user.id != response.locals.userId) throw new AppError("Sem permissão", 403)
 
         const { location, description } = request.body;
         const { accountable, duration, start } = request.body;
@@ -85,7 +85,7 @@ export default class EventsController {
 
         if(!event) throw new AppError("Evento não encontrado")
 
-        if(response.locals.userId !== event.user.id) throw new AppError("Sem Permissão", 401)
+        if(response.locals.userId !== event.user.id) throw new AppError("Sem Permissão", 403)
 
         await this.eventsRepository.remove(event)
 

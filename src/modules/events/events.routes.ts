@@ -5,6 +5,8 @@ import checkAuthentication from "../../shared/middlewares/checkAuthentication";
 import EventsController from "./controllers/EventsController";
 
 import { validateEventCreate, validateEventUpdate } from "./middlewares/validateEvents";
+import checkPermission from "../../shared/middlewares/checkPermission";
+import { PERMISSIONS } from "../../shared/utils/Permissions";
 
 const eventsRouter = Router();
 
@@ -25,6 +27,7 @@ eventsRouter.get(
 eventsRouter.post(
     "/",
     checkAuthentication,
+    checkPermission(PERMISSIONS.EVENT_CREATE),
     validateEventCreate,
     (req, res) => eventsController.create(req, res)
 )
@@ -32,6 +35,7 @@ eventsRouter.post(
 eventsRouter.put(
     "/:id",
     checkAuthentication,
+    checkPermission(PERMISSIONS.EVENT_UPDATE),
     validateEventUpdate,
     (req, res) => eventsController.update(req, res)
 )

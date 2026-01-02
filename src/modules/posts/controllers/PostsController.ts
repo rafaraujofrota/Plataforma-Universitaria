@@ -56,7 +56,7 @@ export default class PostsController {
 
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        if(response.locals.userId !== post.author.id) throw new AppError("Sem Permissão", 401)
+        if(response.locals.userId !== post.author.id) throw new AppError("Sem Permissão", 403)
 
         await this.postsRepository.remove(post)
 
