@@ -3,17 +3,17 @@ import { Request, Response } from "express";
 import { Repository } from "typeorm";
 import { dataSource } from "../../../shared/infra/dataSource";
 
-import { Report } from "../entities/Report";
+import { Announcements } from "../entities/Announcements";
 import { User } from "../../users/entities/User";
 
 import AppError from "../../../shared/utils/AppError";
 
-export default class ReportsController {
-    protected reportsRepository: Repository<Report>
+export default class AnnouncementsController {
+    protected announcementsRepository: Repository<Announcements>
     protected usersRepository: Repository<User>
 
     constructor() {
-        this.reportsRepository = dataSource.getRepository(Report)
+        this.announcementsRepository = dataSource.getRepository(Announcements)
         this.usersRepository = dataSource.getRepository(User)
     }
 
@@ -28,7 +28,7 @@ export default class ReportsController {
 
         if(!user) throw new AppError("Usuário não encontrado")
 
-        const report = this.reportsRepository.create({
+        const announcement = this.announcementsRepository.create({
             name,
             link,
             type,
@@ -38,9 +38,9 @@ export default class ReportsController {
             user: { id: user.id },
         })
 
-        await this.reportsRepository.save(report)
+        await this.announcementsRepository.save(announcement)
 
-        return response.json(report)
+        return response.json(announcement)
     }
 
     public async update(request: Request, response: Response): Promise<Response> {
@@ -48,26 +48,28 @@ export default class ReportsController {
 
         const { id } = request.params
             
-        const report = await this.reportsRepository.findOne({
+        const announcement = await this.announcementsRepository.findOne({
             where: { id },
             relations: { user: true }
         });
 
-        if(!report) throw new AppError("Informe não encontrado!", 404) 
-        if(report.user.id != response.locals.userId) throw new AppError("Sem permissão", 401)
+        if(!announcement) throw new AppError("Informe não encontrado!", 404) 
+        if(announcement.user.id != response.locals.userId) {
+            throw new AppError("Sem permissão", 401)
+        }
 
         const { description, link, start, end } = request.body;
 
-        if (description) report.description = description;
-        if (link) report.link = link;
-        if (start) report.start = start;
-        if (end) report.end = end;
+        if (description) announcement.description = description;
+        if (link) announcement.link = link;
+        if (start) announcement.start = start;
+        if (end) announcement.end = end;
 
-        await this.reportsRepository.save(report);
+        await this.announcementsRepository.save(announcement);
 
-        const { user, ...reportData } = report
+        const { user, ...announcementData } = announcement
 
-        return response.json(reportData);
+        return response.json(announcementData);
     }
 
     public async delete(request: Request, response: Response): Promise<Response> {
@@ -75,16 +77,18 @@ export default class ReportsController {
 
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        const report = await this.reportsRepository.findOne({ 
+        const announcement = await this.announcementsRepository.findOne({ 
             where: { id },
             relations: { user: true }
         });
 
-        if(!report) throw new AppError("Informe não encontrado")
+        if(!announcement) throw new AppError("Informe não encontrado")
 
-        if(response.locals.userId !== report.user.id) throw new AppError("Sem Permissão", 401)
+        if(response.locals.userId !== announcement.user.id) {
+            throw new AppError("Sem Permissão", 401)
+        }
 
-        await this.reportsRepository.remove(report)
+        await this.announcementsRepository.remove(announcement)
 
         return response.json({ message: "Informe Removido" })
     }
@@ -92,27 +96,29 @@ export default class ReportsController {
     public async show(request: Request, response: Response): Promise<Response> {
         if(!response.locals.userId) throw new AppError("Erro ao Processar Requisição", 422)
 
-        const reports = await this.reportsRepository.find({
+        const announcements = await this.announcementsRepository.find({
             where: { user: { id: response.locals.userId } },
             relations: { user: true }
         })
 
-        const completeReport = reports.map((r) => {
+        const completeAnnouncement = announcements.map((r) => {
             const { user, ...rData } = r
             return { creator: user.name, contact: user.email, ...rData }
         })
 
-        return response.json(completeReport)
+        return response.json(completeAnnouncement)
     }
 
     public async get(request: Request, response: Response): Promise<Response> {
-        const reports = await this.reportsRepository.find({ relations: { user: true } })
+        const announcements = await this.announcementsRepository.find(
+            { relations: { user: true } }
+        )
 
-        const completeReport = reports.map((r) => {
+        const completeAnnouncement = announcements.map((r) => {
             const { user, ...rData } = r
             return { creator: user.name, contact: user.email, ...rData }
         })
 
-        return response.json(completeReport)
+        return response.json(completeAnnouncement)
     }
 }

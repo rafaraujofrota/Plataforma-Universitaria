@@ -2,12 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { User } from "../../users/entities/User";
 
-export const reportTypes = ["news", "survey", "invite"] as const
+export const announcementsTypes = ["news", "survey", "invite"] as const
 
-type rTypes = typeof reportTypes[number];
+type aTypes = typeof announcementsTypes[number];
 
-@Entity("reports")
-export class Report {
+@Entity("announcements")
+export class Announcements {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
     
@@ -19,9 +19,9 @@ export class Report {
 
     @Column({
         type: "enum",
-        enum: reportTypes
+        enum: announcementsTypes
     })
-    type!: rTypes;
+    type!: aTypes;
 
     @Column({ nullable: true })
     link?: string;
@@ -38,6 +38,6 @@ export class Report {
     @UpdateDateColumn()
     updated_at!: Date;
     
-    @ManyToOne(() => User, user => user.reports, { onDelete: "CASCADE" })
+    @ManyToOne(() => User, user => user.announcements, { onDelete: "CASCADE" })
     user!: User;
 }

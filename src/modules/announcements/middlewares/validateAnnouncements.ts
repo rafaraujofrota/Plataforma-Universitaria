@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "../../../shared/utils/AppError";
 
-import { reportTypes } from "../entities/Report";
+import { announcementsTypes } from "../entities/Announcements";
 
-export function validateReportCreate(req: Request, res: Response, next: NextFunction) {
+export function validateAnnouncementsCreate(req: Request, res: Response, next: NextFunction) {
     if (!req.body) throw new AppError("Body Inválido") 
 
     const { name, type, description, link, start, end } = req.body;
@@ -11,7 +11,7 @@ export function validateReportCreate(req: Request, res: Response, next: NextFunc
     if (typeof name !== "string" || name.trim().length < 3) 
         throw new AppError("Nome Inválido ou Curto")
 
-    if(!reportTypes.includes(type)) throw new AppError("Tipo Inválido")
+    if(!announcementsTypes.includes(type)) throw new AppError("Tipo Inválido")
 
     if (typeof description !== "string" || description.trim().length < 3) 
         throw new AppError("Descrição Inválida ou Curta")
@@ -46,7 +46,7 @@ export function validateReportCreate(req: Request, res: Response, next: NextFunc
     next();
 }
 
-export function validateReportUpdate(req: Request, res: Response, next: NextFunction) {
+export function validateAnnouncementsUpdate(req: Request, res: Response, next: NextFunction) {
     if (!req.body) throw new AppError("Body Inválido") 
 
     const { description, link, start, end } = req.body;
