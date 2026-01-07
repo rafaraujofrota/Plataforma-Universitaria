@@ -1,23 +1,9 @@
-BACK END DA PLATAFORMA CHAMA🔥!
+BACK END DE UM PROJETO FEITO PARA A DISCIPLINA DE ENGENHARIA DE SOFTWARE DA UFC
 
-- Requisitos para Rodar
+Apenas contém os meus Commits transferidos e que foram feitos para o projeto "Chama"
 
-* Node e NPM Instalados
-* Banco Postgres 
+Features Iniciais: Usuários com Permissões, Login, Enviar Email de Verificação, Feed de Posts com Comentários, Notícias e Eventos da Universidade
 
-- Como Rodar
+COMO RODAR
 
-Crie um arquivo .env com as mesmas váriaveis de .env.example e preencha a parte do Banco com 
-os valores certos para User e Password que você criou
-
-Entre na pasta do projeto e digite no Terminal "npm install" e espere o processo terminar
-
-Após terminar de instalar tudo digite "npm run dev"
-
-Ele já vai automaticamente criar todas as tabelas e hospedar o servidor em localhost:3333
-
-- Como Testar
-
-Recomendo usar um App chamado Insomnia, baixe ele e crie uma nova requisição
-
-coloque "localhost:3333/user" com GET, se vier um Array vazio ou com os usuários que criou então funcionou. 🤯 ( Qualquer dúvida perguntar para Mim )
+Instalar o Banco e Baixar o Projeto, após inserir os dados em .env deve-se rodar "npm install" e depois "npm run dev"
