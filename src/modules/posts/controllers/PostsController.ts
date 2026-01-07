@@ -95,9 +95,13 @@ export default class PostsController {
             "author.id",
             "author.name",
             "profile.avatar",
+            "profile.type",
+            "profile.course",
+            "profile.organization"
         ])
-        /// Pegar quantidade de Likes
+        /// Pegar quantidade de Likes e Comentários
         .loadRelationCountAndMap("posts.likesCount", "posts.likes")
+        .loadRelationCountAndMap("posts.commentCount", "posts.comments")
         /// Ver se usuário logado curtiu
         .addSelect(subQuery => (
             subQuery.select("COUNT(like.id) > 0")

@@ -97,6 +97,9 @@ export default class CommentsController {
             "author.id",
             "author.name",
             "profile.avatar",
+            "profile.type",
+            "profile.course",
+            "profile.organization"
         ])
         /// Pegar quantidades de Likes
         .loadRelationCountAndMap("comments.likeCount", "comments.likes")
